@@ -38,10 +38,10 @@ export default function HeroSection() {
       
       {/* LEFT SIDE - FANTASY */}
       <motion.div 
-        className="relative h-full overflow-hidden"
+        className="relative h-full overflow-hidden basis-0"
         onMouseEnter={() => setHoveredSide("left")}
         onMouseLeave={() => setHoveredSide(null)}
-        animate={{ flex: hoveredSide === "left" ? 6 : (hoveredSide === "right" ? 4 : 5) }}
+        animate={{ flexGrow: hoveredSide === "left" ? 6 : (hoveredSide === "right" ? 4 : 5) }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <motion.div
@@ -83,10 +83,10 @@ export default function HeroSection() {
 
       {/* RIGHT SIDE - CYBERPUNK */}
       <motion.div 
-        className="relative h-full overflow-hidden"
+        className="relative h-full overflow-hidden basis-0"
         onMouseEnter={() => setHoveredSide("right")}
         onMouseLeave={() => setHoveredSide(null)}
-        animate={{ flex: hoveredSide === "right" ? 6 : (hoveredSide === "left" ? 4 : 5) }}
+        animate={{ flexGrow: hoveredSide === "right" ? 6 : (hoveredSide === "left" ? 4 : 5) }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <motion.div
