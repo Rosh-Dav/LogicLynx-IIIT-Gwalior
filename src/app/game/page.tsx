@@ -10,6 +10,7 @@ import CodeEditor from "@/components/game/CodeEditor";
 import DialoguePanel from "@/components/game/DialoguePanel";
 import Terminal, { TerminalOutput } from "@/components/game/Terminal";
 import { Play, Sparkles, ChevronRight } from "lucide-react";
+import { useVoice } from "@/hooks/useVoice";
 
 export default function GamePage() {
   const router = useRouter();
@@ -32,6 +33,8 @@ export default function GamePage() {
       }
     }
   }, [mounted, story, lang, currentLevel]);
+
+  const { speak } = useVoice();
 
   if (!mounted) return <div className="min-h-screen bg-black" />;
   
@@ -57,9 +60,20 @@ export default function GamePage() {
       // Check if user wrote "1010" somewhere
       if (code.includes("1010")) {
         setOutput(prev => [...prev, { type: "success", message: "Successfully executed without errors!" }]);
+        
+        // Speak the success line
+        if (currentMission.successLine) {
+          speak(currentMission.successLine, story as "cyberpunk" | "fantasy");
+        }
+
         setTimeout(() => setShowSuccess(true), 800);
       } else {
         setOutput(prev => [...prev, { type: "error", message: "ReferenceError: Expected value not found. Did you initialize it to the correct value?" }]);
+        
+        // Speak the error/hint line
+        if (currentMission.errorLine) {
+          speak(currentMission.errorLine, story as "cyberpunk" | "fantasy");
+        }
       }
     }, 1000);
   };
