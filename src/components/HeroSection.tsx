@@ -1,14 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import { Sparkles, Zap } from "lucide-react";
+import { useState } from "react";
+import AuthModal from "./AuthModal";
+import { useGameStore } from "@/store/useGameStore";
 
 export default function HeroSection() {
   const [hoveredSide, setHoveredSide] = useState<"left" | "right" | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { setStory } = useGameStore();
 
   // Random generate particles for fantasy
-  const [fantasyParticles, setFantasyParticles] = useState([...Array(15)].map((_, i) => ({
+  const [fantasyParticles] = useState([...Array(15)].map((_, i) => ({
     id: i,
     left: Math.random() * 100,
     delay: Math.random() * 5,
@@ -17,13 +20,18 @@ export default function HeroSection() {
   })));
 
   // Cyberpunk scanlines/particles
-  const [cyberParticles, setCyberParticles] = useState([...Array(10)].map((_, i) => ({
+  const [cyberParticles] = useState([...Array(10)].map((_, i) => ({
     id: i,
     left: Math.random() * 100,
     delay: Math.random() * 3,
     duration: 1 + Math.random() * 2,
     height: 10 + Math.random() * 40,
   })));
+
+  const handleSelectStory = (storyType: "cyberpunk" | "fantasy") => {
+    setStory(storyType);
+    setIsAuthModalOpen(true);
+  };
 
   return (
     <section className="relative w-full h-screen overflow-hidden flex text-white font-sans bg-black">
@@ -167,7 +175,7 @@ export default function HeroSection() {
         <div className="flex flex-col sm:flex-row gap-4 md:gap-8 mt-12 px-4 pointer-events-auto">
           {/* Fantasy Button */}
           <motion.button 
-            onClick={() => document.getElementById('final-cta')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => handleSelectStory('fantasy')}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.5, duration: 0.8 }}
@@ -180,7 +188,7 @@ export default function HeroSection() {
 
           {/* Cyberpunk Button */}
           <motion.button 
-            onClick={() => document.getElementById('final-cta')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => handleSelectStory('cyberpunk')}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.6, duration: 0.8 }}
@@ -194,6 +202,7 @@ export default function HeroSection() {
 
       </div>
 
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </section>
   );
 }

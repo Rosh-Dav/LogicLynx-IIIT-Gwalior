@@ -3,10 +3,17 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { FadeInScroll } from "./FadeInScroll";
+import { useGameStore } from "@/store/useGameStore";
 import AuthModal from "./AuthModal";
 
 export default function FinalCTA() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { setStory } = useGameStore();
+
+  const handleStart = () => {
+    setStory(null);
+    setIsAuthModalOpen(true);
+  };
 
   return (
     <section id="final-cta" className="relative w-full min-h-[60vh] flex flex-col items-center justify-center bg-[#050505] overflow-hidden py-32 z-10 border-t border-white/5">
@@ -26,7 +33,7 @@ export default function FinalCTA() {
           </p>
           
           <motion.button 
-            onClick={() => setIsAuthModalOpen(true)}
+            onClick={handleStart}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-8 py-4 md:px-12 bg-gradient-to-r from-purple-500 to-cyan-400 text-white font-sans font-bold text-sm tracking-widest uppercase rounded-xl transition-shadow shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.5)]"

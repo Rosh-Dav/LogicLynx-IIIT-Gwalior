@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useGameStore } from "@/store/useGameStore";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -9,6 +11,19 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const router = useRouter();
+  const { story, setUser } = useGameStore();
+
+  const handleGuestLogin = () => {
+    setUser({ id: "guest-" + Date.now(), name: "Traveler", isGuest: true });
+    onClose();
+    if (story) {
+      router.push("/language");
+    } else {
+      router.push("/story-selection");
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -39,21 +54,21 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
             <div className="flex flex-col gap-4 mt-2">
               <button 
-                onClick={onClose}
+                onClick={handleGuestLogin}
                 className="w-full py-4 px-6 rounded-2xl border border-purple-500/40 bg-purple-500/5 hover:bg-purple-500/10 transition-colors text-purple-400 font-bold text-sm tracking-widest font-sans uppercase shadow-[0_0_15px_rgba(168,85,247,0.1)]"
               >
                 CONTINUE AS GUEST
               </button>
 
               <button 
-                onClick={onClose}
+                onClick={handleGuestLogin} // For mock purposes, normal auth flow would differ
                 className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#8b5cf6] to-[#06b6d4] hover:opacity-90 transition-opacity text-white font-bold text-sm tracking-widest font-sans uppercase shadow-lg shadow-purple-500/20"
               >
                 SIGN UP
               </button>
 
               <button 
-                onClick={onClose}
+                onClick={handleGuestLogin} // For mock purposes
                 className="w-full py-4 px-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors text-gray-400 font-bold text-sm tracking-widest font-sans uppercase"
               >
                 LOGIN
