@@ -13,8 +13,6 @@ import Terminal, { TerminalOutput } from "@/components/game/Terminal";
 import { Play, Sparkles, ChevronRight } from "lucide-react";
 import { useVoice } from "@/hooks/useVoice";
 import Avatar from "@/components/Avatar";
-import { adminService, Story, Level, Scene } from "@/lib/adminService";
-
 export default function GamePage() {
   const router = useRouter();
   const { story, lang, currentLevel } = useGameStore();
@@ -33,47 +31,20 @@ export default function GamePage() {
   const [mission, setMission] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Mission Data from Backend
+  // Load Static Mission Data (Backend-less Mode)
   useEffect(() => {
-    async function loadMission() {
+    function loadMission() {
       if (!story || !lang) return;
       setLoading(true);
       try {
-        // 1. Get stories and find the active one
-        const stories = await adminService.getStories();
-        const activeStory = stories.find((s: Story) => s.title.toLowerCase() === story.toLowerCase());
-
-        if (activeStory) {
-          // 2. Get Levels for this story
-          const levels = await adminService.getLevels(activeStory.story_id);
-          
-          // Find the level matching currentLevel order_index
-          const activeLevel = levels.find((l: Level) => l.order_index === currentLevel);
-
-          if (activeLevel) {
-            // 3. Get Full Level Data (Scenes + Task)
-            const fullLevelData = await adminService.getFullLevel(activeLevel.level_id);
-            
-            // 4. Map to Frontend format
-            const mappedMission = {
-              id: fullLevelData.level.level_id,
-              title: fullLevelData.level.title,
-              storyNodes: fullLevelData.scenes.map((s: Scene) => ({
-                text: s.text,
-                bgImage: s.background_image,
-                characterName: s.character_name,
-                characterImage: s.character_image
-              })),
-              objective: fullLevelData.task?.objective || "Complete the task",
-              startingCode: fullLevelData.task?.starting_code || "",
-              expectedOutput: fullLevelData.task?.expected_output || "",
-              hints: fullLevelData.task?.hints || ["Analyze the logic carefully."],
-              successLine: "Outstanding sequence execution. You've successfully resolved the logical dependencies.",
-              errorLine: "ReferenceError: Logic mismatch detected. Review your input parameters."
-            };
-
-            setMission(mappedMission);
-            setCode(mappedMission.startingCode);
+        // Find mission by language -> story -> level index
+        const languageMissions = missionsData[lang as keyof typeof missionsData];
+        if (languageMissions) {
+          const storyMissions = languageMissions[story as keyof typeof languageMissions];
+          if (storyMissions) {
+            const activeMission = storyMissions.find(m => m.id === currentLevel) || storyMissions[0];
+            setMission(activeMission);
+            setCode(activeMission.startingCode);
           }
         }
       } catch (error) {
