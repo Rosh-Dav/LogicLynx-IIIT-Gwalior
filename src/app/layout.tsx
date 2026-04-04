@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "A cinematic game-style landing page.",
 };
 
+import AchievementToast from "@/components/AchievementToast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,6 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-black text-white overflow-x-hidden font-sans">
         {children}
+        <AchievementToast />
       </body>
     </html>
   );

@@ -38,7 +38,7 @@ export default function FinalCTA() {
             whileTap={{ scale: 0.95 }}
             className="px-8 py-4 md:px-12 bg-gradient-to-r from-purple-500 to-cyan-400 text-white font-sans font-bold text-sm tracking-widest uppercase rounded-xl transition-shadow shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.5)]"
           >
-            START AS GUEST
+            START YOUR JOURNEY
           </motion.button>
 
         </FadeInScroll>

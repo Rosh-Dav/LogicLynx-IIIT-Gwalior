@@ -49,6 +49,11 @@ export default function Navbar() {
             <span className="absolute -bottom-1 left-0 w-0 h-px bg-yellow-400 transition-all duration-300 group-hover:w-full" />
           </Link>
 
+          <Link href="/arena" className="hover:text-white transition-colors relative group">
+            ARENA
+            <span className="absolute -bottom-1 left-0 w-0 h-px bg-red-400 transition-all duration-300 group-hover:w-full" />
+          </Link>
+
           {user && (
             <>
               <Link href="/profile" className="hover:text-white transition-colors relative group">

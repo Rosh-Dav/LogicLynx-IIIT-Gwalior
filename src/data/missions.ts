@@ -12,6 +12,11 @@ export interface MissionBriefing {
   rules?: string[];
 }
 
+export interface TestCase {
+  input: string;
+  expectedOutput: string;
+}
+
 export interface Mission {
   id: number;
   title: string;
@@ -21,6 +26,7 @@ export interface Mission {
   startingCode: string;
   expectedOutput?: string;
   validationStrings?: string[];
+  testCases?: TestCase[];
   hints: string[];
   successLine?: string;
   errorLine?: string;
@@ -43,6 +49,9 @@ export const missionsData: Record<string, Record<string, Mission[]>> = {
         objective: "Print 'Hello World' and declare an integer variable `agent_id`.",
         startingCode: "# Initialize your agent_id below\n",
         validationStrings: ["print", "Hello World", "agent_id", "="],
+        testCases: [
+          { input: "", expectedOutput: "Hello World" }
+        ],
         hints: ["In Python, you simply write the variable name, an equals sign, and the value. Use print() for output."],
         successLine: "The door slides open. You step into the surveillance maze.",
         errorLine: "Syntax rejected. You've hit an exception. Review your variable initialization."
@@ -458,6 +467,10 @@ export const missionsData: Record<string, Record<string, Mission[]>> = {
         objective: "Initialize the Grid: Print system status, allocate memory with exact types, handle data input, and perform arithmetic processing.",
         startingCode: "#include <stdio.h>\n\nint main() {\n    // Task 1: Print \"C controls the system\"\n\n\n    // Task 2: Print \"System Online\"\n\n\n    // Task 3: Create int score; and float accuracy;\n    \n\n    // Task 4: Take integer input to \"val\", then print it\n    int val;\n\n\n    // Task 5: Add two numbers (e.g. 10 + 5) and print result\n\n\n    return 0;\n}\n",
         validationStrings: ["#include", "printf", "C controls the system", "System Online", "int score", "float accuracy", "scanf", "return 0"],
+        testCases: [
+          { input: "42", expectedOutput: "42" },
+          { input: "100", expectedOutput: "100" }
+        ],
         hints: [
           "Include your protocol: `#include <stdio.h>`",
           "Every instruction needs a `;` at the end.",

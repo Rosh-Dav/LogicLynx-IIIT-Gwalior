@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useGameStore } from "@/store/useGameStore";
+import Navbar from "@/components/Navbar";
 import { Sparkles, Zap } from "lucide-react";
 
 export default function StorySelectionPage() {
@@ -16,9 +17,11 @@ export default function StorySelectionPage() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+      <Navbar />
       
       {/* Background Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/10 via-black to-black" />
+
 
       <motion.div
         initial={{ opacity: 0, y: -20 }}

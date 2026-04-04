@@ -39,11 +39,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setErrorMsg("");
     setSuccessMsg("");
     try {
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-      
+      // Local guest session — no Supabase anonymous auth required
+      const guestId = "guest-" + Date.now();
       setUser({ 
-        id: data.user?.id || "guest-" + Date.now(), 
+        id: guestId, 
         name: playerName.trim() || "Traveler", 
         isGuest: true 
       });
@@ -93,12 +92,34 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       // Fetch real XP and profile info after login/signup
       let userXp = 0;
       let userName = authResponse.data.user?.user_metadata?.name || email.split("@")[0];
+      let dbStreak = 0;
+      let dbLastActive = null;
 
-      if (mode === "login") {
-        const { data: profile } = await supabase.from('profiles').select('name, xp').eq('id', authResponse.data.user?.id).single();
+      if (mode === "login" || mode === "signup") {
+        const { data: profile } = await supabase.from('profiles').select('name, xp, streak_count, last_active_date').eq('id', authResponse.data.user?.id).single();
         if (profile) {
           userXp = profile.xp || 0;
+          dbStreak = profile.streak_count || 0;
+          dbLastActive = profile.last_active_date;
           if (profile.name) userName = profile.name;
+        }
+      }
+
+      // --- Streak Logic ---
+      const today = new Date().toISOString().split('T')[0];
+      let newStreak = dbStreak;
+      
+      if (!dbLastActive) {
+        newStreak = 1;
+      } else {
+        const lastDate = new Date(dbLastActive);
+        const todayDate = new Date(today);
+        const diffDays = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          newStreak += 1;
+        } else if (diffDays > 1) {
+          newStreak = 1;
         }
       }
 
@@ -108,8 +129,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         isGuest: false 
       });
       
-      // Update local XP store immediately
-      useGameStore.getState().addXP(userXp - useGameStore.getState().xp); // ensures delta adjusts to exact DB amount
+      // Update local store immediately
+      const store = useGameStore.getState();
+      store.setSyncData(userXp);
+      store.updateStreak(newStreak, today);
       
       navigatePostAuth();
     } catch (err: any) {

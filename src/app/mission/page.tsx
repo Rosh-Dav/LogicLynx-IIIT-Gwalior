@@ -8,6 +8,7 @@ import { themes } from "@/themes/themeConfig";
 import { useVoice } from "@/hooks/useVoice";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import Avatar from "@/components/Avatar";
+import Navbar from "@/components/Navbar";
 import { Play, Volume2, VolumeX } from "lucide-react";
 
 const WELCOME_LINES: Record<string, (name: string) => string> = {
@@ -56,6 +57,8 @@ export default function MissionBriefingPage() {
     <div
       className={`min-h-screen ${themeVars.background} text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans`}
     >
+      <Navbar />
+      
       {/* Background */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <img

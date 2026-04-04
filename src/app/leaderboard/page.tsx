@@ -69,7 +69,7 @@ export default function LeaderboardPage() {
               GLOBAL <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">RANKINGS</span>
             </h1>
             <p className="text-gray-400 max-w-xl mx-auto text-lg">
-              The most elite operatives in the LogicLynx network. Execute code, clear missions, and rise to the top.
+              The most elite operatives in the LogicLynx network. XP is earned universally across all Story Modes and Programming Languages. Complete any mission to rise to the top.
             </p>
           </div>
 

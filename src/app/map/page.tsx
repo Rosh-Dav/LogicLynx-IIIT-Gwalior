@@ -3,14 +3,15 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Check, Lock, ChevronLeft, Hexagon } from "lucide-react";
+import { Check, Lock, Hexagon } from "lucide-react";
 import { useGameStore } from "@/store/useGameStore";
 import { themes } from "@/themes/themeConfig";
 import { missionsData } from "@/data/missions";
+import Navbar from "@/components/Navbar";
 
 export default function LevelMapPage() {
   const router = useRouter();
-  const { story, lang, currentLevel, setLevel } = useGameStore();
+  const { story, lang, currentLevel, highestUnlockedLevel, setLevel } = useGameStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -37,8 +38,8 @@ export default function LevelMapPage() {
     return {
       id: mission.id,
       name: conceptName,
-      unlocked: mission.id <= currentLevel,
-      completed: mission.id < currentLevel
+      unlocked: mission.id <= highestUnlockedLevel,
+      completed: mission.id < highestUnlockedLevel
     };
   });
 
@@ -67,14 +68,10 @@ export default function LevelMapPage() {
       </div>
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none opacity-20" />
 
+      <Navbar />
+      
       {/* Top Navbar */}
-      <div className="relative z-20 w-full p-6 flex justify-between items-center">
-        <button 
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors uppercase tracking-widest text-xs font-bold"
-        >
-          <ChevronLeft className="w-4 h-4" /> Back
-        </button>
+      <div className="relative z-20 w-full p-6 pt-24 flex justify-end items-center">
         <div className="text-right">
           <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white drop-shadow-md">Your Journey</h1>
         </div>

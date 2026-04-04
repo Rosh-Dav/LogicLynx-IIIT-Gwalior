@@ -3,21 +3,48 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useGameStore } from "@/store/useGameStore";
-import { TerminalSquare, Code2, ChevronLeft } from "lucide-react";
+import { TerminalSquare, Code2 } from "lucide-react";
 import { themes } from "@/themes/themeConfig";
 import { useEffect, useState } from "react";
+import Navbar from "@/components/Navbar";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LanguageSelectionPage() {
   const router = useRouter();
   const { setLang, story } = useGameStore();
   const [mounted, setMounted] = useState(false);
+  const [loadingSelection, setLoadingSelection] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleSelect = (lang: "python" | "c") => {
+  const handleSelect = async (lang: "python" | "c") => {
+    setLoadingSelection(true);
     setLang(lang);
+    
+    // Fetch unified progress to restore EXACT level
+    const store = useGameStore.getState();
+    if (store.user && !store.user.isGuest && story) {
+      const { data } = await supabase
+        .from("user_progress")
+        .select("current_level")
+        .eq("user_id", store.user.id)
+        .eq("language", lang)
+        .eq("story", story)
+        .single();
+        
+      if (data && data.current_level) {
+        store.setSyncData(undefined, data.current_level);
+      } else {
+        store.setSyncData(undefined, 1);
+      }
+    } else {
+       // Reset to 1 for guest or unauthenticated
+       store.setSyncData(undefined, 1); 
+    }
+    
+    setLoadingSelection(false);
     router.push("/mission"); // Goes to the general welcome screen
   };
 
@@ -28,7 +55,8 @@ export default function LanguageSelectionPage() {
 
   return (
     <div className={`min-h-screen ${themeVars.background || 'bg-black'} text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans`}>
-      
+      <Navbar />
+
       {/* Background Graphic */}
       {story && (
         <div className="absolute inset-0 opacity-20 pointer-events-none fixed">
@@ -44,14 +72,6 @@ export default function LanguageSelectionPage() {
       {/* Noise/Grid Pattern */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-
-      {/* Back Button */}
-      <button 
-        onClick={() => router.back()}
-        className="absolute top-8 left-8 flex items-center gap-2 text-gray-500 hover:text-white transition-colors uppercase tracking-widest text-xs font-bold z-20"
-      >
-        <ChevronLeft className="w-4 h-4" /> Back
-      </button>
 
       <div className="relative z-10 w-full max-w-4xl pt-10">
         <div className="text-center mb-16">

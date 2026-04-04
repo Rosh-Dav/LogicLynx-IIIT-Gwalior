@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Mission } from "@/data/missions";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { useVoice } from "@/hooks/useVoice";
-import { ChevronRight, Forward, Sparkles } from "lucide-react";
+import { ChevronRight, Forward, Sparkles, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface StoryPhaseProps {
   mission: Mission;
@@ -75,6 +76,7 @@ function StoryScreen({
   const isCyber = storyType === "cyberpunk";
   const { displayedText, isDone } = useTypewriter(text, 30);
   const { speak, stop, isSpeaking } = useVoice();
+  const router = useRouter();
 
   useEffect(() => {
     speak(text, storyType as any);
@@ -90,6 +92,13 @@ function StoryScreen({
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 lg:p-12 overflow-hidden bg-black"
     >
+      {/* Route out to map */}
+      <button 
+        onClick={() => router.push("/map")}
+        className="absolute top-6 right-6 z-[60] bg-black/50 hover:bg-white/20 border border-white/20 p-2 rounded-xl text-white/50 hover:text-white transition-all backdrop-blur-md"
+      >
+        <X className="w-6 h-6" />
+      </button>
       {/* Background Image with animated scale */}
       <motion.div 
         initial={{ scale: 1.1, x: -20 }}
