@@ -16,10 +16,11 @@ export default function SolutionSection() {
       <div className="container mx-auto px-6 relative z-10 flex flex-col items-center">
         
         <FadeInScroll delay={0.1} className="mb-24 text-center">
-          <h2 className="text-4xl md:text-5xl font-fantasy text-white mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+          <div className="text-[10px] uppercase tracking-[0.4em] text-[#8b5cf6] mb-12">THE SOLUTION</div>
+          <h2 className="text-5xl md:text-7xl font-sans text-white max-w-5xl mx-auto leading-[1.1] font-black tracking-tight mb-12">
             Write code to progress the story.
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto opacity-50" />
+          <div className="w-32 h-[1px] bg-gradient-to-r from-transparent via-[#8b5cf6] to-[#06b6d4] mx-auto opacity-50" />
         </FadeInScroll>
 
         <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch">
@@ -50,7 +51,7 @@ export default function SolutionSection() {
 
               {/* Objective Box */}
               <div className="bg-white/[0.02] backdrop-blur-3xl rounded-2xl border border-white/10 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.3)] transition-transform duration-500 hover:-translate-y-1">
-                <div className="text-gray-400 font-sans text-sm mb-2">Quest Objective</div>
+                <div className="text-gray-400 font-sans text-sm mb-2">LogicLynx Objective</div>
                 <p className="text-purple-400 font-mono text-base flex items-center gap-2">
                   <span className="opacity-70">&rarr;</span> Implement bubble_sort() to arrange the runes
                 </p>

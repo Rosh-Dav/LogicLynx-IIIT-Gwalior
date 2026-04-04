@@ -10,8 +10,8 @@ interface AvatarProps {
 }
 
 const AVATAR_URLS = {
-  cyberpunk: "https://api.dicebear.com/7.x/bottts/svg?seed=handler",
-  fantasy: "https://api.dicebear.com/7.x/adventurer/svg?seed=archmage",
+  cyberpunk: "/avatars/handler.png",
+  fantasy: "/avatars/archmage.png",
 };
 
 const SIZE_MAP = {
@@ -92,7 +92,7 @@ export default function Avatar({
         <img
           src={AVATAR_URLS[storyType]}
           alt={isCyber ? "AI Handler" : "Archmage Tutor"}
-          className="w-full h-full object-cover p-1.5"
+          className="w-full h-full object-cover"
         />
       </motion.div>
 
