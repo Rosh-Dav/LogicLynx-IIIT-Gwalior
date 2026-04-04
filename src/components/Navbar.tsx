@@ -27,7 +27,7 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
         <Link href="/" className="text-[22px] font-sans font-black tracking-widest flex items-center">
-          <span className="text-[#a855f7]">LOGIC</span>
+          <span className="text-white/90">LOGIC</span>
           <span className="text-[#06b6d4]">LYNX</span>
         </Link>
         

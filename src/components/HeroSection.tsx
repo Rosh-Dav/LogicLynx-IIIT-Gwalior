@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthModal from "./AuthModal";
 import { useGameStore } from "@/store/useGameStore";
 
@@ -9,24 +9,28 @@ export default function HeroSection() {
   const [hoveredSide, setHoveredSide] = useState<"left" | "right" | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { setStory } = useGameStore();
+  const [mounted, setMounted] = useState(false);
 
-  // Random generate particles for fantasy
-  const [fantasyParticles] = useState([...Array(15)].map((_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 5,
-    duration: 5 + Math.random() * 5,
-    size: 2 + Math.random() * 4,
-  })));
+  const [fantasyParticles, setFantasyParticles] = useState<any[]>([]);
+  const [cyberParticles, setCyberParticles] = useState<any[]>([]);
 
-  // Cyberpunk scanlines/particles
-  const [cyberParticles] = useState([...Array(10)].map((_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 3,
-    duration: 1 + Math.random() * 2,
-    height: 10 + Math.random() * 40,
-  })));
+  useEffect(() => {
+    setMounted(true);
+    setFantasyParticles([...Array(15)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 5,
+      duration: 5 + Math.random() * 5,
+      size: 2 + Math.random() * 4,
+    })));
+    setCyberParticles([...Array(10)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 3,
+      duration: 1 + Math.random() * 2,
+      height: 10 + Math.random() * 40,
+    })));
+  }, []);
 
   const handleSelectStory = (storyType: "cyberpunk" | "fantasy") => {
     setStory(storyType);
@@ -59,7 +63,7 @@ export default function HeroSection() {
         
         {/* Floating Fantasy Particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {fantasyParticles.map((p) => (
+          {mounted && fantasyParticles.map((p) => (
             <motion.div
               key={p.id}
               initial={{ y: "100vh", opacity: 0 }}
@@ -104,7 +108,7 @@ export default function HeroSection() {
 
         {/* Cyberpunk Digital Particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-          {cyberParticles.map((p) => (
+          {mounted && cyberParticles.map((p) => (
             <motion.div
               key={p.id}
               initial={{ y: "-20vh", opacity: 0 }}

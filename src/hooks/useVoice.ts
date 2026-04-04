@@ -26,9 +26,20 @@ export function useVoice() {
 
   useEffect(() => {
     mountedRef.current = true;
+
+    // Optional: hook into window beforeunload just in case
+    const handleBeforeUnload = () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
       mountedRef.current = false;
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.pause();
         window.speechSynthesis.cancel();
       }
       _activeUtterance = null;
@@ -37,6 +48,7 @@ export function useVoice() {
 
   const stop = useCallback(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.pause();
       window.speechSynthesis.cancel();
     }
     if (mountedRef.current) setIsSpeaking(false);
