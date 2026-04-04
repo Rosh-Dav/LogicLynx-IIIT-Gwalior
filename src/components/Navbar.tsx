@@ -4,9 +4,12 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import MagneticButton from "./MagneticButton";
+import { useGameStore } from "@/store/useGameStore";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const { user } = useGameStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,21 +35,59 @@ export default function Navbar() {
         </Link>
         
         <div className="hidden md:flex gap-12 items-center font-sans font-bold text-[11px] tracking-[0.2em] uppercase text-gray-400">
-          <Link href="#features" className="hover:text-white transition-colors relative group">
+          <Link href="/#features" className="hover:text-white transition-colors relative group">
             FEATURES
             <span className="absolute -bottom-1 left-0 w-0 h-px bg-purple-400 transition-all duration-300 group-hover:w-full" />
           </Link>
-          <Link href="#stories" className="hover:text-white transition-colors relative group">
+          <Link href="/#stories" className="hover:text-white transition-colors relative group">
             STORIES
             <span className="absolute -bottom-1 left-0 w-0 h-px bg-purple-400 transition-all duration-300 group-hover:w-full" />
           </Link>
-          <Link href="#start" className="hover:text-white transition-colors relative group mr-4">
-            START
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan-400 transition-all duration-300 group-hover:w-full" />
+
+          <Link href="/leaderboard" className="hover:text-white transition-colors relative group">
+            LEADERBOARD
+            <span className="absolute -bottom-1 left-0 w-0 h-px bg-yellow-400 transition-all duration-300 group-hover:w-full" />
           </Link>
-          <button className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#06b6d4] hover:opacity-90 transition-all text-white font-bold text-xs shadow-lg">
-            PLAY NOW
-          </button>
+
+          {user && (
+            <>
+              <Link href="/profile" className="hover:text-white transition-colors relative group">
+                PROFILE
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan-400 transition-all duration-300 group-hover:w-full" />
+              </Link>
+              
+              <button 
+                onClick={async () => {
+                  try {
+                    await supabase.auth.signOut();
+                    useGameStore.getState().setUser(null);
+                    useGameStore.getState().resetGame();
+                    // Optional: force reload to catch any lingering state
+                    window.location.href = "/";
+                  } catch (e) {
+                    console.error("Logout failed", e);
+                  }
+                }}
+                className="hover:text-red-400 transition-colors relative group mr-4"
+              >
+                LOGOUT
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-red-400 transition-all duration-300 group-hover:w-full" />
+              </button>
+            </>
+          )}
+
+          {!user && (
+            <Link href="/#start" className="hover:text-white transition-colors relative group mr-4">
+              START
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan-400 transition-all duration-300 group-hover:w-full" />
+            </Link>
+          )}
+
+          <Link href={user ? "/story-selection" : "/#start"}>
+            <button className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#06b6d4] hover:opacity-90 transition-all text-white font-bold text-xs shadow-lg">
+              {user ? "RESUME" : "PLAY NOW"}
+            </button>
+          </Link>
         </div>
       </div>
     </motion.nav>
