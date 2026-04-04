@@ -77,12 +77,8 @@ function StoryScreen({
   const { speak, stop, isSpeaking } = useVoice();
 
   useEffect(() => {
-    // Speak on mount
-    const timer = setTimeout(() => {
-      speak(text, storyType as any);
-    }, 500);
+    speak(text, storyType as any);
     return () => {
-      clearTimeout(timer);
       stop();
     };
   }, [text, storyType, speak, stop]);
@@ -96,9 +92,14 @@ function StoryScreen({
     >
       {/* Background Image with animated scale */}
       <motion.div 
-        initial={{ scale: 1.05 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 10, ease: "linear" }}
+        initial={{ scale: 1.1, x: -20 }}
+        animate={{ scale: 1.15, x: 20 }}
+        transition={{ 
+          duration: 20, 
+          ease: "linear",
+          repeat: Infinity,
+          repeatType: "reverse"
+        }}
         className="absolute inset-0 pointer-events-none"
       >
         <img 
@@ -106,18 +107,18 @@ function StoryScreen({
           alt="Story background" 
           className="w-full h-full object-cover"
         />
-        {/* Cinematic darkened vignettes */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80" />
+        {/* Lighter cinematic vignettes for better background visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
       </motion.div>
 
       {/* Content Container */}
-      <div className="relative z-10 w-full max-w-4xl flex flex-col justify-end h-full pb-10">
+      <div className="relative z-10 w-full max-w-3xl flex flex-col justify-end h-full pb-4 lg:pb-6">
         <motion.div 
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, type: "spring", damping: 20 }}
-          className={`backdrop-blur-xl border ${isCyber ? "border-cyan-500/30 bg-black/60 shadow-[0_0_50px_rgba(6,182,212,0.15)]" : "border-purple-500/30 bg-[#1a0f2e]/80 shadow-[0_0_50px_rgba(168,85,247,0.15)]"} rounded-3xl p-8 lg:p-12 relative overflow-hidden`}
+          transition={{ delay: 0.5, type: "spring", damping: 25 }}
+          className={`backdrop-blur-xl border ${isCyber ? "border-cyan-500/20 bg-black/30 shadow-[0_0_40px_rgba(6,182,212,0.1)]" : "border-purple-500/20 bg-[#0c051a]/30 shadow-[0_0_40px_rgba(168,85,247,0.1)]"} rounded-3xl p-5 lg:p-6 relative overflow-hidden`}
         >
           {/* Decorative accents */}
           <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${isCyber ? "from-transparent via-cyan-500 to-transparent" : "from-transparent via-purple-500 to-transparent"} opacity-50`} />
@@ -132,31 +133,28 @@ function StoryScreen({
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: -20, opacity: 0 }}
-                  className="flex-shrink-0 relative group"
+                  className="flex-shrink-0 relative group mt-1"
                 >
-                  <div className={`w-24 h-24 lg:w-32 lg:h-32 rounded-2xl overflow-hidden border-2 ${isCyber ? "border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.3)]" : "border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.3)]"}`}>
-                    <img src={characterImage} alt={characterName} className="w-full h-full object-cover" />
+                  <div className={`w-20 h-20 lg:w-28 lg:h-28 ${isCyber ? "drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]" : "drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]"}`}>
+                    <img src={characterImage} alt={characterName} className="w-full h-full object-contain" />
                   </div>
-                  {/* Decorative corner accents */}
-                  <div className={`absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 ${isCyber ? "border-cyan-400" : "border-purple-400"}`} />
-                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 ${isCyber ? "border-cyan-400" : "border-purple-400"}`} />
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div className="flex-1 min-h-[160px]">
+            <div className="flex-1 min-h-[80px]">
               {/* Character Name Label */}
               <AnimatePresence>
                 {characterName && (
                   <motion.div
                     initial={{ y: -10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="mb-4 inline-block"
+                    className="mb-2 inline-block"
                   >
-                    <span className={`text-xs font-black uppercase tracking-[0.3em] px-3 py-1 rounded-md ${
+                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-sm ${
                       isCyber 
-                        ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]" 
-                        : "bg-purple-500/10 text-purple-400 border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+                        ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.2)]" 
+                        : "bg-purple-500/10 text-purple-400 border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
                     }`}>
                       {characterName}
                     </span>
@@ -164,8 +162,8 @@ function StoryScreen({
                 )}
               </AnimatePresence>
 
-              {/* Dialogue Text */}
-              <p className="text-xl lg:text-3xl text-gray-100 font-medium leading-relaxed font-sans tracking-wide shadow-black drop-shadow-md">
+              {/* Dialogue Text - More compact */}
+              <p className="text-sm lg:text-base text-gray-100 font-medium leading-relaxed font-sans tracking-wide">
                 {displayedText}
                 {!isDone && (
                   <motion.span
@@ -179,12 +177,12 @@ function StoryScreen({
           </div>
 
           {/* Action Row */}
-          <div className="flex justify-end items-center mt-4">
+          <div className="flex justify-end items-center mt-2">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onNext}
-              className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-bold uppercase tracking-widest text-sm transition-all ${
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase tracking-widest text-xs transition-all ${
                 isDone 
                   ? isCyber
                     ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.4)]"

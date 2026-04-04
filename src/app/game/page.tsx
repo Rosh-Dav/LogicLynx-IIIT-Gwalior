@@ -9,20 +9,21 @@ import { themes } from "@/themes/themeConfig";
 import CodeEditor from "@/components/game/CodeEditor";
 import DialoguePanel from "@/components/game/DialoguePanel";
 import StoryPhase from "@/components/game/StoryPhase";
+import MissionBriefing from "@/components/game/MissionBriefing";
 import Terminal, { TerminalOutput } from "@/components/game/Terminal";
 import { Play, Sparkles, ChevronRight } from "lucide-react";
 import { useVoice } from "@/hooks/useVoice";
 import Avatar from "@/components/Avatar";
 export default function GamePage() {
   const router = useRouter();
-  const { story, lang, currentLevel } = useGameStore();
+  const { story, lang, currentLevel, setLevel } = useGameStore();
   const { speak } = useVoice();
   
   const [mounted, setMounted] = useState(false);
   const [code, setCode] = useState("");
   const [output, setOutput] = useState<TerminalOutput[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [gamePhase, setGamePhase] = useState<"story" | "coding">("story");
+  const [gamePhase, setGamePhase] = useState<"story" | "briefing" | "coding">("story");
 
   useEffect(() => {
     setMounted(true);
@@ -37,14 +38,13 @@ export default function GamePage() {
       if (!story || !lang) return;
       setLoading(true);
       try {
-        // Find mission by language -> story -> level index
         const languageMissions = missionsData[lang as keyof typeof missionsData];
         if (languageMissions) {
-          const storyMissions = languageMissions[story as keyof typeof languageMissions];
+          const storyMissions = languageMissions[story as keyof typeof languageMissions] as any;
           if (storyMissions) {
-            const activeMission = storyMissions.find(m => m.id === currentLevel) || storyMissions[0];
+            const activeMission = storyMissions.find((m: any) => m.id === currentLevel) || storyMissions[0];
             setMission(activeMission);
-            setCode(activeMission.startingCode);
+            if (activeMission) setCode(activeMission.startingCode);
           }
         }
       } catch (error) {
@@ -74,16 +74,50 @@ export default function GamePage() {
   const themeVars = story ? themes[story as keyof typeof themes] : themes.cyberpunk;
 
   const handleNextLevel = () => {
-    // Return to menu or handle progression
+    const languageMissions = missionsData[lang as keyof typeof missionsData];
+    if (languageMissions) {
+      const storyMissions = languageMissions[story as keyof typeof languageMissions];
+      if (storyMissions) {
+        const nextMission = storyMissions.find(m => m.id === currentLevel + 1);
+        if (nextMission) {
+          setLevel(currentLevel + 1);
+          setShowSuccess(false);
+          setOutput([]);
+          setGamePhase("story");
+          return;
+        }
+      }
+    }
     router.push("/");
   };
+
+  if (loading || !mission) {
+    return (
+      <div className="h-screen w-screen bg-black flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className={`w-10 h-10 border-4 ${story === "cyberpunk" ? "border-cyan-500/30 border-t-cyan-500" : "border-purple-500/30 border-t-purple-500"} rounded-full`}
+        />
+      </div>
+    );
+  }
 
   if (gamePhase === "story") {
     return (
       <StoryPhase 
         mission={mission} 
         storyType={story as "cyberpunk" | "fantasy"}
-        onComplete={() => setGamePhase("coding")} 
+        onComplete={() => setGamePhase("briefing")} 
+      />
+    );
+  }
+
+  if (gamePhase === "briefing") {
+    return (
+      <MissionBriefing
+        mission={mission}
+        onStart={() => setGamePhase("coding")}
       />
     );
   }
@@ -93,22 +127,40 @@ export default function GamePage() {
     setOutput([{ type: "info", message: "Executing procedure..." }]);
     setShowSuccess(false);
     
-    // Very dummy execution logic
     setTimeout(() => {
-      // Check if user wrote expected output somewhere
-      if (code.includes(mission.expectedOutput || "1010")) {
+      // Strip comments to prevent bypassing validation via comments
+      const cleanCode = code.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, "");
+      
+      // Check for basic program structure if in C
+      const isC = lang === "c";
+      const hasBasicStructure = !isC || (
+        (/int\s+main\s*\(/.test(cleanCode) || /void\s+main\s*\(/.test(cleanCode)) &&
+        (/#include\s+<stdio\.h>/.test(cleanCode) || /#include\s+<iostream>/.test(cleanCode))
+      );
+
+      const stringsRequired = mission.validationStrings || [];
+      const hasRequiredContent = stringsRequired.length > 0 
+        ? stringsRequired.every((str: string) => {
+            // Special check for printf to ensure it's not actually a 'print' call from another language
+            if (str === "printf") {
+               return cleanCode.includes("printf(");
+            }
+            return cleanCode.includes(str);
+          }) 
+        : cleanCode.includes(mission.expectedOutput || "1010");
+
+      if (hasRequiredContent && hasBasicStructure) {
         setOutput(prev => [...prev, { type: "success", message: "Successfully executed without errors!" }]);
-        
-        // Speak the success line
         if (mission.successLine) {
           speak(mission.successLine, story as "cyberpunk" | "fantasy");
         }
-
         setTimeout(() => setShowSuccess(true), 800);
       } else {
-        setOutput(prev => [...prev, { type: "error", message: "ReferenceError: Expected value not found. Did you initialize it to the correct value?" }]);
+        const errorMsg = !hasBasicStructure 
+          ? "Validation Error: Basic C program structure missing (main function or #include)." 
+          : "Validation Error: Your input does not meet the specified logical requirements.";
         
-        // Speak the error/hint line
+        setOutput(prev => [...prev, { type: "error", message: errorMsg }]);
         if (mission.errorLine) {
           speak(mission.errorLine, story as "cyberpunk" | "fantasy");
         }
@@ -188,22 +240,49 @@ export default function GamePage() {
               {/* Background Glow */}
               <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-[200%] bg-gradient-to-b ${themeVars.gradient} opacity-5 blur-[100px] pointer-events-none`} />
               
-              <div className="flex flex-col items-center gap-4 mb-8">
-                <Avatar 
-                  storyType={story as "cyberpunk" | "fantasy"} 
-                  isSpeaking={false} 
-                  size="lg" 
-                />
+              <div className="flex flex-col items-center gap-4 mb-6">
+                {mission?.successImage ? (
+                  <motion.img 
+                    src={mission.successImage} 
+                    alt="Success Graphic" 
+                    className="h-32 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
+                    animate={{ y: [0, -10, 0], scale: [1, 1.05, 1] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                ) : (
+                  <Avatar 
+                    storyType={story as "cyberpunk" | "fantasy"} 
+                    isSpeaking={false} 
+                    size="lg" 
+                  />
+                )}
                 <div>
                   <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Mission Complete!</h2>
                   <div className={`text-[10px] font-black uppercase tracking-[0.2em] mb-4 ${story === "cyberpunk" ? "text-cyan-400" : "text-purple-400"}`}>
                     {story === "cyberpunk" ? "THE HANDLER" : "ARCHMAGE VORDRID"}
                   </div>
                   <p className="text-gray-400 font-sans px-4">
-                    {mission.successLine || "Outstanding sequence execution. You've successfully resolved the logical dependencies."}
+                    {mission?.successLine || "Outstanding sequence execution. You've successfully resolved the logical dependencies."}
                   </p>
                 </div>
               </div>
+
+              {mission?.whatYouLearned && mission.whatYouLearned.length > 0 && (
+                <div className="mb-8 text-left bg-black/40 border border-white/10 rounded-xl p-5 w-full">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xl">🧠</span>
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">What You Learned</h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {mission.whatYouLearned.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-3 text-sm text-gray-300">
+                        <span className={`flex-shrink-0 ${story === 'cyberpunk' ? 'text-cyan-400' : 'text-purple-400'}`}>▸</span>
+                        <span dangerouslySetInnerHTML={{ __html: item.replace(/`([^`]+)`/g, '<code class="text-white bg-white/10 px-1 rounded">$1</code>') }} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               
               <motion.button
                 whileHover={{ scale: 1.05 }}

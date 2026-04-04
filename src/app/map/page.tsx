@@ -6,23 +6,11 @@ import { useState, useEffect } from "react";
 import { Check, Lock, ChevronLeft, Hexagon } from "lucide-react";
 import { useGameStore } from "@/store/useGameStore";
 import { themes } from "@/themes/themeConfig";
-
-const levelsData = [
-  { id: 1, name: "Variables", unlocked: true, completed: true },
-  { id: 2, name: "Loops", unlocked: true, completed: false },
-  { id: 3, name: "Arrays", unlocked: false, completed: false },
-  { id: 4, name: "Pointers", unlocked: false, completed: false },
-  { id: 5, name: "Functions", unlocked: false, completed: false },
-  { id: 6, name: "Conditionals", unlocked: false, completed: false },
-  { id: 7, name: "Structs", unlocked: false, completed: false },
-  { id: 8, name: "Classes", unlocked: false, completed: false },
-  { id: 9, name: "File I/O", unlocked: false, completed: false },
-  { id: 10, name: "Algorithms", unlocked: false, completed: false }
-];
+import { missionsData } from "@/data/missions";
 
 export default function LevelMapPage() {
   const router = useRouter();
-  const { story, user, setLevel } = useGameStore();
+  const { story, lang, currentLevel, setLevel } = useGameStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -36,6 +24,24 @@ export default function LevelMapPage() {
     return null;
   }
 
+  const currentLang = lang || "python";
+  const trackLevels = (missionsData as any)[currentLang]?.[story] || [];
+
+  // Format the missions into the level map structure
+  const levelsData = trackLevels.map((mission: any) => {
+    // Extract concept from "Level X: Concept - Story Title"
+    const conceptName = mission.title.includes(':') 
+      ? mission.title.split(':')[1]?.split('-')[0]?.trim() || mission.title 
+      : mission.title;
+
+    return {
+      id: mission.id,
+      name: conceptName,
+      unlocked: mission.id <= currentLevel,
+      completed: mission.id < currentLevel
+    };
+  });
+
   const themeVars = themes[story as keyof typeof themes];
   const isCyber = story === "cyberpunk";
 
@@ -44,7 +50,6 @@ export default function LevelMapPage() {
       setLevel(levelId);
       router.push("/game");
     } else {
-      // Optional: show small toast/message here. We'll handle it visually via disabled state.
       console.log("Level Locked");
     }
   };
@@ -88,7 +93,7 @@ export default function LevelMapPage() {
             className={`absolute top-0 bottom-0 w-1 bg-gradient-to-b ${themeVars.gradient} opacity-20 left-1/2 -translate-x-1/2`}
           />
 
-          {levelsData.map((level, index) => {
+          {levelsData.map((level: any, index: number) => {
             const isLeft = index % 2 === 0;
             return (
               <LevelNode 

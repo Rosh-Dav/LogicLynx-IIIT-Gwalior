@@ -71,28 +71,27 @@ export default function Avatar({
           isSpeaking
             ? {
                 scale: [1, 1.04, 1, 1.04, 1],
-                boxShadow: [
-                  `0 0 0px ${glowColor}`,
-                  `0 0 24px ${glowColor}`,
-                  `0 0 8px ${glowColor}`,
-                  `0 0 24px ${glowColor}`,
-                  `0 0 0px ${glowColor}`,
+                filter: [
+                  `drop-shadow(0 0 0px ${glowColor})`,
+                  `drop-shadow(0 0 10px ${glowColor})`,
+                  `drop-shadow(0 0 2px ${glowColor})`,
+                  `drop-shadow(0 0 10px ${glowColor})`,
+                  `drop-shadow(0 0 0px ${glowColor})`,
                 ],
               }
-            : { scale: 1, boxShadow: `0 0 0px ${glowColor}` }
+            : { scale: 1, filter: `drop-shadow(0 0 0px ${glowColor})` }
         }
         transition={
           isSpeaking
             ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" }
             : { duration: 0.3 }
         }
-        className="w-full h-full rounded-2xl overflow-hidden border-2 border-white/20 bg-white/5 relative"
+        className="w-full h-full relative"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none z-10" />
         <img
           src={AVATAR_URLS[storyType]}
           alt={isCyber ? "AI Handler" : "Archmage Tutor"}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </motion.div>
 

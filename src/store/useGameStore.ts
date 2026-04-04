@@ -32,8 +32,8 @@ export const useGameStore = create<GameState>()(
       currentLevel: 1,
 
       setUser: (user) => set({ user }),
-      setStory: (story) => set({ story }),
-      setLang: (lang) => set({ lang }),
+      setStory: (story) => set({ story: (typeof story === 'string' && story) ? story as StoryMode : null }),
+      setLang: (lang) => set({ lang: (typeof lang === 'string' && lang) ? lang as ProgrammingLang : null }),
       setLevel: (level) => set({ currentLevel: level }),
       
       resetGame: () => set({ story: null, lang: null, currentLevel: 1 }),

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { themes } from "@/themes/themeConfig";
 import { useGameStore } from "@/store/useGameStore";
@@ -23,6 +24,16 @@ export default function DialoguePanel({ mission }: DialoguePanelProps) {
   const toggle = (textToSpeak: string) => {
     isSpeaking ? stop() : speak(textToSpeak.replace(/\n/g, ' '), storyType);
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      speak(`Your objective: ${mission.objective}`, storyType);
+    }, 500); // slight delay after transition from story phase
+    return () => {
+      clearTimeout(timer);
+      stop();
+    }
+  }, [mission.objective, speak, stop, storyType]);
 
   return (
     <div className={`w-full h-full flex flex-col ${themeVars.background} overflow-hidden rounded-2xl border ${themeVars.border} backdrop-blur-md`}>
